@@ -9,7 +9,8 @@ function App() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "https://todo-app-o2lx.onrender.com";
+ // /todos add karlo agar backend routes wahan hain
+const API_URL = "https://todo-app-o2lx.onrender.com/todos";
 
   // Sabhi requests ke liye Common Headers (Security ke liye)
   const config = {
@@ -44,15 +45,15 @@ function App() {
     }
   };
 
-  // Toggle Task Status (Complete/Incomplete)
-  const toggle = async (id) => {
-    try {
-      const res = await axios.put(`${API_URL}/${id}`, {}, config);
-      setTodos(todos.map(t => t._id === id ? res.data : t));
-    } catch (err) {
-      console.error("Toggle Error:", err);
-    }
-  };
+  // Toggle Task
+const toggle = async (id) => {
+  try {
+    const res = await axios.put(`${API_URL}/${id}`, {}, config); // API_URL mein ab /todos pehle se hai
+    setTodos(todos.map(t => t._id === id ? res.data : t));
+  } catch (err) {
+    console.error("Toggle Error:", err);
+  }
+};
 
   // Delete Task
   const del = async (id) => {
