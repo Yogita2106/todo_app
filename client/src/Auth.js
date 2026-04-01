@@ -8,7 +8,7 @@ function Auth({ setToken }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = `http://localhost:5000/${isLogin ? 'login' : 'register'}`;
+        const url = `https://todo-app-o2lx.onrender.com/${isLogin ? 'login' : 'register'}`;
         try {
             const res = await axios.post(url, { email, password });
             if (isLogin) {

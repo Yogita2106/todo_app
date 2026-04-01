@@ -9,7 +9,7 @@ function App() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://localhost:5000/todos";
+  const API_URL = "https://todo-app-o2lx.onrender.com";
 
   // Sabhi requests ke liye Common Headers (Security ke liye)
   const config = {
