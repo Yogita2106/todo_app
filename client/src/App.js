@@ -9,17 +9,17 @@ function App() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
- // /todos add karlo agar backend routes wahan hain
-const API_URL = "https://todo-app-o2lx.onrender.com/todos";
-
-  // Sabhi requests ke liye Common Headers (Security ke liye)
-  const config = {
-    headers: { Authorization: `Bearer ${token}` }
-  };
+  // Sabse zaroori: URL ke aage /todos check kar lena apne backend routes ke hisaab se
+  const API_URL = "https://todo-app-o2lx.onrender.com/todos";
 
   // Fetch Tasks
   useEffect(() => {
     if (token) {
+      // Config ko andar move kar diya taaki dependency error na aaye
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
       setLoading(true);
       axios.get(API_URL, config)
         .then(res => {
@@ -31,11 +31,12 @@ const API_URL = "https://todo-app-o2lx.onrender.com/todos";
           setLoading(false);
         });
     }
-  }, [token]);
+  }, [token, API_URL]); // Ab React khush rahega
 
   // Add Task
   const addTodo = async () => {
     if (!input.trim()) return;
+    const config = { headers: { Authorization: `Bearer ${token}` } };
     try {
       const res = await axios.post(API_URL, { text: input }, config);
       setTodos([...todos, res.data]);
@@ -45,18 +46,20 @@ const API_URL = "https://todo-app-o2lx.onrender.com/todos";
     }
   };
 
-  // Toggle Task
-const toggle = async (id) => {
-  try {
-    const res = await axios.put(`${API_URL}/${id}`, {}, config); // API_URL mein ab /todos pehle se hai
-    setTodos(todos.map(t => t._id === id ? res.data : t));
-  } catch (err) {
-    console.error("Toggle Error:", err);
-  }
-};
+  // Toggle Task Status
+  const toggle = async (id) => {
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+    try {
+      const res = await axios.put(`${API_URL}/${id}`, {}, config);
+      setTodos(todos.map(t => t._id === id ? res.data : t));
+    } catch (err) {
+      console.error("Toggle Error:", err);
+    }
+  };
 
   // Delete Task
   const del = async (id) => {
+    const config = { headers: { Authorization: `Bearer ${token}` } };
     try {
       await axios.delete(`${API_URL}/${id}`, config);
       setTodos(todos.filter(t => t._id !== id));
@@ -65,29 +68,23 @@ const toggle = async (id) => {
     }
   };
 
-  // Logout Function
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
     setTodos([]);
   };
 
-  // Agar login nahi hai toh Auth component dikhao
   if (!token) return <Auth setToken={setToken} />;
 
   return (
     <div className="App">
-      <button className="logout-btn" onClick={handleLogout}>
-        Logout
-      </button>
-      
+      <button className="logout-btn" onClick={handleLogout}>Logout</button>
       <h1>My Tasks</h1>
-      
       <div className="input-container">
         <input 
           value={input} 
           onChange={(e) => setInput(e.target.value)} 
-          onKeyPress={(e) => e.key === 'Enter' && addTodo()} // Enter dabane par bhi add hoga
+          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
           placeholder="What's on your mind?" 
         />
         <button onClick={addTodo}>Add</button>
@@ -97,20 +94,16 @@ const toggle = async (id) => {
         <p style={{ textAlign: 'center', color: '#64748b' }}>Loading tasks...</p>
       ) : (
         <ul>
-          {todos.length > 0 ? (
-            todos.map(t => (
-              <li key={t._id} className={t.completed ? 'completed' : ''}>
-                <span onClick={() => toggle(t._id)}>{t.text}</span>
-                <button className="del-btn" onClick={() => del(t._id)}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 6L6 18M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </li>
-            ))
-          ) : (
-            <p style={{ textAlign: 'center', color: '#64748b', marginTop: '20px' }}>No tasks yet. Add one!</p>
-          )}
+          {todos.map(t => (
+            <li key={t._id} className={t.completed ? 'completed' : ''}>
+              <span onClick={() => toggle(t._id)}>{t.text}</span>
+              <button className="del-btn" onClick={() => del(t._id)}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg>
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
